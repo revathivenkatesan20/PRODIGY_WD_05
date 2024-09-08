@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            font-family: Arial, sans-serif;
+        }
+        #weather-container {
+            background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+            color: white;
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: calc(100% - 24px);
+            font-size: 16px;
+        }
+        button {
+            background-color: #2575fc;
+            color: white;
+            cursor: pointer;
+        }
+        .circle-gradient {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at center, #00c6ff, #0072ff);
+            border-radius: 50%;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="weather-container">
+        <h2>Weather App</h2>
+        <input type="text" id="location-input" placeholder="Enter location" />
+        <button onclick="getWeatherByLocation()">Get Weather</button>
+        <button onclick="getWeatherByGeolocation()">Use My Location</button>
+        
+        <div class="circle-gradient"></div>
+
+        <h3 id="location-name"></h3>
+        <p id="weather-description"></p>
+        <p id="temperature"></p>
+        <p id="humidity"></p>
+        <p id="wind-speed"></p>
+    </div>
+
+    <script>
+        const apiKey = 'YOUR_API_KEY_HERE';
+
+        async function fetchWeatherData(url) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayWeatherData(data);
+            } catch (error) {
+                alert('Unable to fetch weather data.');
+            }
+        }
+
+        function getWeatherByLocation() {
+            const location = document.getElementById('location-input').value;
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
+            fetchWeatherData(url);
+        }
+
+        function getWeatherByGeolocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+                    fetchWeatherData(url);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function displayWeatherData(data) {
+            document.getElementById('location-name').innerText = `${data.name}, ${data.sys.country}`;
+            document.getElementById('weather-description').innerText = `Conditions: ${data.weather[0].description}`;
+            document.getElementById('temperature').innerText = `Temperature: ${data.main.temp} °C`;
+            document.getElementById('humidity').innerText = `Humidity: ${data.main.humidity}%`;
+            document.getElementById('wind-speed').innerText = `Wind Speed: ${data.wind.speed} m/s`;
+        }
+    </script>
+</body>
+</html>
